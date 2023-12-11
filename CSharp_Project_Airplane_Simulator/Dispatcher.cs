@@ -50,7 +50,7 @@ namespace CSharp_Project_Airplane_Simulator
         // Function for displaying recommended flight altitude
         public void DisplayFlightInfo(int speed, int height)
         {
-            int /*recomended*/ flightAltitude = 7 * speed - WeatherAdjustment;// The recommended flight altitude is calculated using these formular
+            int flightAltitude = 7 * speed - WeatherAdjustment;// The recommended flight altitude is calculated using these formular
 
             int divergence;// Difference between recommended and current height
             if (height > flightAltitude)
@@ -58,32 +58,42 @@ namespace CSharp_Project_Airplane_Simulator
                 // Subtract the smaller from the larger
                 divergence = height - flightAltitude;
             }
-            else
-                divergence = flightAltitude - height;
-
-            Console.WriteLine($"Dispathcer{Name}: Recommended flight altitude: {flightAltitude}m.");
+            else divergence = flightAltitude - height;
+            Console.WriteLine($"Dispathcer: {Name} - Recommended flight altitude: {flightAltitude} = M.");
 
             if (speed > 1000)// Exceeding the maximum speed
             {
                 Penalty += 100;
-                Console.WriteLine($"Dispathcer {Name}:Reduce speed immediately!");
+                Console.WriteLine($"Dispathcer: {Name} - Reduce speed immediately!");
                 Console.Beep();
-                Console.WriteLine($"Penality {Penalty}");
+                Console.WriteLine($"Penality: {Penalty}");
             }
             if (divergence >= 300 && divergence < 600)
             {
                 Penalty += 25;
-                Console.WriteLine($"Penality {Penalty}");
+                Console.WriteLine($"Penality: {Penalty}");
             }
             else if (divergence >= 600 && divergence < 1000)
             {
                 Penalty += 50;
-                Console.WriteLine($"Penality {Penalty}");
+                Console.WriteLine($"Penality: {Penalty}");
             }
             else if (divergence >= 1000 || (speed <= 0 && height <= 0))
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 throw new AirplaneCrushed("The plane crashed");// exception on plane crashed
-            }
+               
+            }  Console.ResetColor();
+            // switch(divergence)
+            //{
+            //    case 300:
+            //    case 600:  Penalty += 25; Console.WriteLine($"Penality {Penalty}"); break;
+            //    case 601:
+            //    case 999: Penalty += 50; Console.WriteLine($"Penality {Penalty}"); break;
+            //    case 1000: speed = 0; height = 0; throw new AirplaneCrushed("The plane crashed"); break;
+            //    default:
+            //        Console.WriteLine("wrong figure"); break;
+            //}
             if (Penalty >= 1000)
             {
                 throw new Unsuitable("Unfit to fly");// Throws an "Unairworthy" exception

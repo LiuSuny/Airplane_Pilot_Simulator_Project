@@ -9,12 +9,12 @@ namespace CSharp_Project_Airplane_Simulator
 {
     public class Airplane
     {
-        private List<Dispatcher> dispatchers;// Список текущих диспетчеров
-        private int currentSpeed { get; set; }// Текущая скорость
-        private int currentHeight { get; set; }// Текущая Высота
-        private int totalPenalty { get; set; }// Общая сумма штрафных очков
-        private bool IsSpeedGained { get; set; }// Показывает, набрана ли максимальная скорость
-        private bool IsFlyBegin { get; set; }// Показывает, начался ли полет
+        private List<Dispatcher> dispatchers;// List of current dispatchers
+        private int currentSpeed { get; set; }// Current speed
+        private int currentHeight { get; set; }// current height of flight
+        private int totalPenalty { get; set; }// total sum of voliation commited
+        private bool IsSpeedGained { get; set; }//Indicates whether maximum speed has been reached
+        private bool IsFlyBegin { get; set; }// Indicates whether the flight has started
 
         private delegate void ChangeDelegate(int speed, int height);
         private event ChangeDelegate ChangeEvent;
@@ -53,70 +53,74 @@ namespace CSharp_Project_Airplane_Simulator
             IsSpeedGained = false;
             IsFlyBegin = true;
         }
-        // Функция для добавления диспечтера
+        //dispatcher addition function
         public void AddDispatcher(string name)
         {
             Dispatcher d = new Dispatcher(name);
-            ChangeEvent += d.DisplayFlightInfo;// Подписка на событие
-            dispatchers.Add(d);// Добавение в список
+            ChangeEvent += d.DisplayFlightInfo;// subscribing to event
+            dispatchers.Add(d);// Adding to the list
 
-            Console.WriteLine($"Dispatcher {name} add!\a");
+            //Next we display our added dispatcher 
+            Console.WriteLine($"Dispatcher: {name} added!\a");
             
         }
-        // Функция для удаление dispatcher
-        public void DeleteDispatcher(int position)
+        // Function for removing dispatcher
+        public void EraseDispatcher(int position) //DeleteDispatcher
         {
-            if (dispatchers.Count == 0)// Если в списке пусто
+            if (dispatchers.Count == 0)// checking if list isEmpty
             {
                 Console.WriteLine("first added dispatcher!");
-                Console.Beep();
+                Console.Beep(); //added little bit of beep sound once name is added to our project
             }
-            else if (position == -1)
+            else if (position == -1) 
             {
                 Console.WriteLine("Change.\a");
                 return;
             }
-            else if (position >= 0 && position <= dispatchers.Count - 1)
+            else if (position >= 0 && position <= dispatchers.Count - 1) //trying to unsubscribe to event
             {
-                ChangeEvent -= dispatchers[position].DisplayFlightInfo;// Отписка от события
+                ChangeEvent -= dispatchers[position].DisplayFlightInfo;// Unsubscribe from an event
                 Console.WriteLine($"Dispatcher {dispatchers[position].Name} deleted!\a");
-                totalPenalty += dispatchers[position].Penalty;// Сохранение штрафных очков, полученных от удаляемого dispatcher
-                dispatchers.RemoveAt(position);// Удаление из списка
+                // Next we are try save penalty points received from the dispatcher being erase from list
+                totalPenalty += dispatchers[position].Penalty;
+                dispatchers.RemoveAt(position);// Removing from the list
             }
             else
             {
+                //If you enter wrong number you recieve no dispatcher exist with beep sound
                 Console.WriteLine("No such dispatcher exists!");
                 Console.Beep();
             }
         }
-        // Функция для вывода всех диспетчеровна экран
+        // Next we created Function displaying all dispatchers on the screen 
         public void PrintDispatchers()
         {
             Console.WriteLine();
             Console.WriteLine("0. Change");
-            foreach (Dispatcher i in dispatchers)
-                Console.WriteLine($"{dispatchers.IndexOf(i) + 1}. {i.Name}");
+            foreach (Dispatcher item in dispatchers)
+            {
+                Console.WriteLine($"{dispatchers.IndexOf(item) + 1}. {item.Name}");
+            }
         }
 
-        public void Fly()
+        // Next we created Function that fly our airplane with display
+        public void FlyOver()
         {
             //TimeToSleep();
 
             Console.SetCursorPosition(35, 9);
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.WriteLine("The pilot's task is to take off the plane" + 
-              "once it reach maximum (1000 km/h) speed, and then land the plane.");
+              "once it reach maximum (1000 km/h) speed, and then land the plane.");         
             Console.ResetColor();
-            
-            
+
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("\n\nRightArrow - increase the aircraft speed by 50," +
                 "\nLeftArrow - decrease the aircraft speed by 50," +
                 "\nShift + RightArrow - increase the aircraft speed by 150," +
                 "\nShift + LeftArrow - decrease the aircraft speed by 150");
-
             Console.ResetColor();
-
+            
             Console.SetCursorPosition(60, 17);
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine("Press any key to continue...");
@@ -151,7 +155,7 @@ namespace CSharp_Project_Airplane_Simulator
                 {
                     PrintDispatchers();
                     Console.Write($"Enter the number of the dispatcher you want to delete: ");
-                    DeleteDispatcher(Convert.ToInt32(Console.ReadLine()) - 1);
+                    EraseDispatcher(Convert.ToInt32(Console.ReadLine()) - 1);
                 }
                 if ((key.Modifiers & ConsoleModifiers.Shift) != 0)
                 {
@@ -168,43 +172,45 @@ namespace CSharp_Project_Airplane_Simulator
                     else if (key.Key == ConsoleKey.DownArrow) CurrentHeight -= 250;
 
                 }
-                if (dispatchers.Count >= 2 && CurrentSpeed >= 50)// Управление самолетом dispatcherми начинается
+                //Control of the aircraft by dispatchers begins
+                if (dispatchers.Count >= 2 && CurrentSpeed >= 50)
                 {
                     Console.WriteLine();
-                    if (!IsFlyBegin)// Оповещение о начале полета
-                        Console.WriteLine("The flight has begun!\a");
+                    //Checking on flight notification has begin
+                    if (!IsFlyBegin)// 
+                        Console.WriteLine("The flight has started!\a");
                     IsFlyBegin = true;
 
-                    // В процессе полета самолет автоматически сообщает
-                    // всем dispatcherм все изменения в скорости
-                    // и высоте полета с помощью делегатов
+                    // Using event delegate, during the flight, the aircraft automatically reports
+                    // to all dispatchers all changes in speed flight altitude using delegates
                     ChangeEvent(CurrentSpeed, CurrentHeight);
                     if (CurrentSpeed == 1000)
                     {
                         IsSpeedGained = false;
+                        //break;
                         Console.WriteLine("\nYou have reached maximum speed. Your task is to land the plane!\a");
                     }
-                    else if (IsSpeedGained && CurrentSpeed <= 50)// Управление самолетом dispatcherми прекращается
+                    else if (IsSpeedGained && CurrentSpeed <= 50)// Control of the aircraft by dispatchers stops
                     {
                         Console.WriteLine("\nThe flight has ended!\a");
-                        // Перебор всех диспетчеров в коллекции и суммирование 
-                        // всех штрафныех очков в общую сумму
+                        // using iterator to go  through all the dispatchers in the collection and add 
+                        // all the penalty points into a total amount
                         foreach (Dispatcher i in dispatchers)
                         {
                             totalPenalty += i.Penalty;
                             Console.WriteLine($"{i.Name}: {i.Penalty}");
                         }
-
                         Console.WriteLine($"Total number of penalty points: {totalPenalty}\a");
-
-                        break;// Выход из цикла
+                        //next we exit the foreach loop
+                        break;
                     }
                 }
                 
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine($"Speed: {CurrentSpeed} km/h Height: {CurrentHeight} m");
+              Console.WriteLine($"Speed: {CurrentSpeed} km/h Height: {CurrentHeight} m");
                
             } while (true);
+           
         }
     }
 }
