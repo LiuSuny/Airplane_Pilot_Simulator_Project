@@ -5,56 +5,51 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.Cryptography;
+using System.Text.Json;
+using System.Numerics;
+using System.Threading;
 
 namespace CSharp_Project_Airplane_Simulator
 {
-    class AirplaneCrushed : Exception
+    class PlaneCrushed : Exception
     {
-        public AirplaneCrushed(string message) : base(message){ }
+        public PlaneCrushed(string message) : base(message){ }
            
     }
-    class Unsuitable : Exception
+    class Incompatible: Exception
     {
-        public Unsuitable(string message): base(message) { }
+        public Incompatible(string message): base(message) { }
     }
-
+   
     public class Program
     {
-        static string Name;
-        static int pos;
+       
         static void Main(string[] args)
         {
+
+            //MiniMenu menu = new MiniMenu(
+            //    new List<String>{ "Enter to Start Training Airplane Pilot ", 
+            //        "Enter Escape to Exit" });
+            //menu.MiniPointMenu = 0;
+            //menu.ClassClass();
+
+            Airplane plane = new Airplane();
+            plane.LoadDispatchersDetailsFromFile("dispatchers.txt");
             try
-            { 
+            {
                 // In the process of training aircraft pilots, only one aircraft object is used
-                Airplane plane = new Airplane();
-              
-                //plane.AddDispatcher(Name);
-                //plane.DeleteDispatcher(pos);
-               // string path = @"C:\Users\User\Desktop\Academy3\tmp10.txt";
-                plane.FlyOver();
-
-                //using (FileStream file = new FileStream(path, FileMode.Append))//OpenORCreate
-                //{
-                //    byte[] temp = Encoding.Default.GetBytes(plane.Fly());
-                //    //file.Seek(10, SeekOrigin.Begin);
-                //    file.Write(temp, 0, temp.Length);
-                //    Console.WriteLine("Ok");
-                //}
-
-                //StreamWriter sw = new StreamWriter(path);
-                //foreach(Airplane item in plane)
-                //{
-                //    sw.WriteLine(item.Fly());
-                //}
+               
+               plane.FlyOver();
 
             }
-            catch (AirplaneCrushed ex)
+            catch (PlaneCrushed ex)
             {
                 Console.WriteLine(ex.Message);
                 Console.Beep();
             }
-            catch (Unsuitable eu)
+            catch (Incompatible eu)
             {
                 Console.WriteLine(eu.Message);
                 Console.Beep();
@@ -63,6 +58,7 @@ namespace CSharp_Project_Airplane_Simulator
             {
                 Console.WriteLine(eg.Message);
             }
+            plane.SaveDispatchersDetailsToFile("dispatchers.txt");
 
         }
     }

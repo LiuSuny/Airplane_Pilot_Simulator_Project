@@ -3,43 +3,54 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace CSharp_Project_Airplane_Simulator
 {
+    [Serializable]
     public class Dispatcher
     {
     
-        public string Name { get; set; }// name of our dispatcher
-        public int Penalty { get; set; }// Penalty point counter
+        public string name { get; set; }// name of our dispatcher
+        public int penalty { get; set; }// Penalty point counter
         private int WeatherAdjustment;// Adjusting weather conditions
         private static Random rnd;
+        private int totalPenalty { get; set; }
 
-        //public string Name
-        //{
-        //    get{ return name; }
-        //    set
-        //    {
-        //        if(value.Any(char.IsDigit))
-        //        {   
-        //            Console.WriteLine("Name can't contain numbers");
-        //            Name = value.ToString();
-        //        }
-        //        name = value;
-        //    }
-        //}
+        public string Name
+        {
+            get { return name; }
+            set
+            {
+                if (!string.IsNullOrEmpty(value) && value.All(char.IsLetter)) //checking if user input number instead of string
+                {
+                    name = value;
+                }
+                else
+                {
+                    throw new Incompatible("Invalid input for Dispatcher name. Please enter a valid string.");
+                }
+            }
+        }
 
-        //public int Penalty
-        //{
-        //    get { return penalty; }
-        //    set
-        //    {
-        //        if (value > 0)
-        //        {
-        //            Console.WriteLine("No flight penalty");
-        //        }
-        //        penalty = value;
-        //    }
-        //}
+        // Add a method to retrieve the total penalty
+        public int TotalPenalty
+        {
+            get { return totalPenalty; }
+            set 
+            { 
+                totalPenalty = value;
+            }
+        }
+
+        public int Penalty
+        {
+            get { return penalty; }
+            set
+            {
+                penalty = value;
+            }
+        }
         public Dispatcher(string name)
         {
             Name = name;
@@ -59,7 +70,7 @@ namespace CSharp_Project_Airplane_Simulator
                 divergence = height - flightAltitude;
             }
             else divergence = flightAltitude - height;
-            Console.WriteLine($"Dispathcer: {Name} - Recommended flight altitude: {flightAltitude} = M.");
+            Console.WriteLine($"Dispathcer: {Name} - Recommended flight altitude: {flightAltitude} M.");
 
             if (speed > 1000)// Exceeding the maximum speed
             {
@@ -67,6 +78,7 @@ namespace CSharp_Project_Airplane_Simulator
                 Console.WriteLine($"Dispathcer: {Name} - Reduce speed immediately!");
                 Console.Beep();
                 Console.WriteLine($"Penality: {Penalty}");
+                
             }
             if (divergence >= 300 && divergence < 600)
             {
@@ -80,8 +92,8 @@ namespace CSharp_Project_Airplane_Simulator
             }
             else if (divergence >= 1000 || (speed <= 0 && height <= 0))
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                throw new AirplaneCrushed("The plane crashed");// exception on plane crashed
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                throw new PlaneCrushed("The plane crashed");// exception on plane crashed
                
             }  Console.ResetColor();
             // switch(divergence)
@@ -96,7 +108,11 @@ namespace CSharp_Project_Airplane_Simulator
             //}
             if (Penalty >= 1000)
             {
-                throw new Unsuitable("Unfit to fly");// Throws an "Unairworthy" exception
+                totalPenalty += Penalty;
+                Console.WriteLine($"{Name}: {Penalty}");
+                Console.WriteLine($"biggest number of penalty points: {TotalPenalty}\a");
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                throw new Incompatible("Unfit to fly");
             }
         }
     }
